@@ -1,899 +1,543 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
-<title>聽力對戰遊戲</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>英語口說評鑑系統</title>
+  <style>
+    :root {
+      --bg: #f4f7ff;
+      --card: #ffffff;
+      --text: #0f172a;
+      --subtle: #475569;
+      --line: #dbe3f3;
+      --primary: #2563eb;
+      --ok: #16a34a;
+      --warn: #d97706;
+      --danger: #dc2626;
+    }
 
-<style>
-:root{
-  --border-black:#000;
-  --pop-blue:#3b82f6;
-  --pop-green:#22c55e;
-  --pop-red:#ef4444;
-  --pop-amber:#f59e0b;
-  --pop-purple:#a855f7;
-  --pop-orange:#f97316;
-}
+    * { box-sizing: border-box; }
 
-*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body{
-  margin:0;
-  height:100vh;
-  overflow:hidden;
-  font-family:"PingFang TC","Microsoft JhengHei",sans-serif;
-  background:linear-gradient(135deg,#FFD200 0%,#F7971E 100%);
-}
-.app{
-  height:100%;
-  padding:15px;
-  display:flex;
-  flex-direction:column;
-  gap:15px;
-}
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      color: var(--text);
+      background: linear-gradient(160deg, #e7eeff 0%, #f8fbff 45%, #eef7ff 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
 
-.comic-box{
-  background:#fff;
-  border:4px solid var(--border-black);
-  box-shadow:6px 6px 0 #000;
-  border-radius:15px;
-}
+    .container {
+      width: min(1100px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 16px;
+    }
 
-.topbar{
-  display:flex;
-  gap:12px;
-  padding:12px;
-  align-items:center;
-  flex-wrap:wrap;
-}
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+    }
 
-/* Logo 樣式 */
-.topbar-logo {
-  height: 80px; 
-  width: auto;
-  object-fit: contain;
-  display: block;
-  @media (max-width: 600px) {
-    height: 60px;
-  }
-}
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 4vw, 34px);
+    }
 
-/* 題目區 */
-.question-zone{
-  flex:1;
-  min-width:260px;
-  height:84px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#f8fafc;
-  border:4px dashed var(--border-black);
-  border-radius:12px;
-  cursor:pointer;
-  position:relative;
-  user-select:none;
-}
-.word-text{ font-size:42px; font-weight:900; color:#000; }
-.listen-hint{ font-size:26px; color:#475569; font-weight:900; }
+    .subtitle {
+      margin: 0;
+      color: var(--subtle);
+      line-height: 1.6;
+    }
 
-/* 按鈕 */
-.comic-btn{
-  background:#fff;
-  border:3px solid #000;
-  box-shadow:4px 4px 0 #000;
-  border-radius:10px;
-  padding:10px 16px;
-  font-weight:900;
-  font-size:18px;
-  cursor:pointer;
-  user-select:none;
-}
-.comic-btn:active{ transform:translate(2px,2px); box-shadow:0 0 0 #000; }
+    .grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
 
-.pill{
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:8px 10px;
-  border:3px solid #000;
-  border-radius:999px;
-  background:#fff;
-  box-shadow:4px 4px 0 #000;
-}
-.pill label{ font-weight:900; font-size:16px; }
-.pill select{
-  font-size:16px;
-  font-weight:900;
-  border:2px solid #000;
-  border-radius:10px;
-  padding:4px 8px;
-  outline:none;
-}
+    label {
+      font-weight: 700;
+      display: block;
+      margin-bottom: 6px;
+    }
 
-/* 戰場 */
-.battle-ground{
-  flex:1;
-  min-height:0;
-  display:grid;
-  gap:15px;
-  grid-template-columns: repeat(var(--cols, 3), 1fr);
-}
-.team-container{
-  display:flex;
-  flex-direction:column;
-  overflow:hidden;
-  min-height:0;
-}
-.team-info{
-  padding:12px;
-  border-bottom:4px solid #000;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:22px;
-  font-weight:900;
-  gap:8px;
-  flex-wrap:wrap;
-}
-.score-tag{
-  background:#000;
-  color:#fff;
-  padding:4px 12px;
-  border-radius:999px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size:18px;
-}
+    input[type="file"], textarea {
+      width: 100%;
+      border: 1px solid #c9d6ef;
+      border-radius: 10px;
+      padding: 10px;
+      font: inherit;
+    }
 
-/* 選項 */
-.options-list{
-  flex:1;
-  min-height:0;
-  padding:12px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  overflow:auto;
-}
-.option-item{
-  background:#fff;
-  border:3px solid #000;
-  border-radius:12px;
-  padding:12px 10px;
-  cursor:pointer;
-  transition:0.08s;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  user-select:none;
-  position: relative; /* 為了放絕對定位的 emoji */
-}
-.option-item:hover{ transform:scale(1.02); }
-.option-word{
-  font-size:26px;
-  font-weight:900;
-  letter-spacing:0.3px;
-  word-break: break-word;
-  text-align: center;
-  z-index: 1;
-}
+    textarea {
+      min-height: 86px;
+      resize: vertical;
+      line-height: 1.5;
+    }
 
-/* 👍 大讚 Emoji 動畫 */
-.thumb-emoji {
-  position: absolute;
-  right: 15px;
-  font-size: 45px; /* 變大 */
-  line-height: 1;
-  z-index: 2;
-  filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.3));
-  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-}
+    .hint {
+      margin-top: 6px;
+      font-size: 13px;
+      color: var(--subtle);
+      line-height: 1.5;
+    }
 
-@keyframes popIn {
-  0% { transform: scale(0) rotate(-45deg); opacity: 0; }
-  60% { transform: scale(1.4) rotate(10deg); opacity: 1; }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
-}
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
 
-.correct{ 
-  background: var(--pop-green) !important; 
-  color:#fff !important; 
-  border-color: #14532d !important;
-}
-.wrong{ 
-  background: var(--pop-red) !important; 
-  color:#fff !important; 
-  animation:shake .25s; 
-  opacity: 0.6; 
-  pointer-events: none; /* 讓這個按鈕不能再按，但可以按別的 */
-}
+    button {
+      border: none;
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 15px;
+    }
 
-/* 顯示正確答案 */
-.reveal-correct{
-  border-color: var(--pop-amber) !important;
-  box-shadow: 0 0 0 4px rgba(245,158,11,.35) !important;
-}
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-muted { background: #e2e8f0; color: #0f172a; }
 
-.locked{
-  opacity:0.6;
-  filter:grayscale(0.1);
-  pointer-events:none;
-}
-.lock-badge{
-  font-size:14px;
-  font-weight:900;
-  padding:4px 8px;
-  border:2px solid #000;
-  border-radius:999px;
-  background:#fff;
-  white-space: nowrap;
-}
+    .status {
+      margin-top: 12px;
+      font-weight: 700;
+      color: #1d4ed8;
+      min-height: 24px;
+    }
 
-@keyframes shake{
-  0%,100%{ transform:translateX(0); }
-  25%{ transform:translateX(-6px); }
-  75%{ transform:translateX(6px); }
-}
+    .score-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
 
-/* 彈窗 */
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.7);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:50;
-}
-.modal{
-  width:min(580px, calc(100vw - 30px));
-  padding:22px;
-}
-.modal h2{ margin:0 0 10px 0; }
-.modal .row{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  flex-wrap:wrap;
-  margin:10px 0 12px;
-}
-.modal textarea{
-  width:100%;
-  height:170px;
-  font-size:16px;
-  padding:10px;
-  border:3px solid #000;
-  border-radius:10px;
-  outline:none;
-  resize:both;
-}
-.mini{
-  font-weight:900;
-  font-size:14px;
-  color:#111827;
-  background:#fff;
-  border:2px solid #000;
-  border-radius:10px;
-  padding:6px 10px;
-}
+    .total-score {
+      font-size: clamp(30px, 7vw, 56px);
+      font-weight: 900;
+      color: var(--primary);
+      line-height: 1;
+    }
 
-/* 排行榜 */
-.podium{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-  margin-top:10px;
-  max-height: 40vh;
-  overflow-y: auto;
-}
-.podium-item{
-  border:3px solid #000;
-  border-radius:14px;
-  box-shadow:4px 4px 0 #000;
-  padding:14px 16px;
-  font-weight:900;
-  font-size:22px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  flex-wrap:wrap;
-}
-.podium-left{
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-.badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:44px;
-  height:44px;
-  border:3px solid #000;
-  border-radius:12px;
-  background:#fff;
-  font-size:22px;
-}
-.score-big{
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size:22px;
-  background:#000;
-  color:#fff;
-  padding:6px 12px;
-  border-radius:999px;
-}
-.all-scores{
-  margin-top:12px;
-  font-weight:900;
-  font-size:14px;
-  color:#334155;
-  line-height:1.6;
-}
+    .band {
+      border-radius: 999px;
+      padding: 8px 14px;
+      font-weight: 800;
+      background: #dbeafe;
+      color: #1d4ed8;
+    }
 
-/* 手機適配 */
-@media (max-width: 900px){
-  .battle-ground{ grid-template-columns: 1fr !important; overflow:auto; }
-  body{ overflow:auto; }
-  .option-word{ font-size: 30px; }
-}
-</style>
+    .bar-wrap { margin-top: 8px; }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: var(--subtle);
+    }
+
+    .bar {
+      width: 100%;
+      height: 12px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      overflow: hidden;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, #60a5fa, #2563eb);
+    }
+
+    .comment {
+      margin: 6px 0 0;
+      line-height: 1.6;
+      color: #1e293b;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    th, td {
+      border: 1px solid #d7e1f3;
+      padding: 8px;
+      vertical-align: top;
+      text-align: left;
+      line-height: 1.5;
+    }
+
+    th { background: #eff6ff; }
+
+    .metric {
+      margin-top: 10px;
+      color: #334155;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .metric code {
+      background: #eef2ff;
+      padding: 2px 6px;
+      border-radius: 6px;
+    }
+
+    audio { width: 100%; margin-top: 8px; }
+  </style>
 </head>
-
 <body>
-<div class="app">
+  <main class="container">
+    <section class="card">
+      <h1>英語口說評鑑系統</h1>
+      <p class="subtitle">
+        上傳 <strong>MP3 / M4A / WAV</strong> 音檔，系統會根據流暢度、發音清晰度、內容完整度與表達表現給出分數、等級標準與評語。
+      </p>
+    </section>
 
-  <div class="comic-box topbar">
-    <img src="image_0.png" alt="KEAT Logo" class="topbar-logo">
+    <section class="card grid">
+      <div>
+        <label for="audioFile">1) 上傳口說音檔</label>
+        <input id="audioFile" type="file" accept=".mp3,.m4a,.wav,audio/mpeg,audio/mp4,audio/wav" />
+        <audio id="preview" controls></audio>
+        <p class="hint">支援單一檔案，建議長度 15 秒以上，可提升評估穩定度。</p>
+      </div>
 
-    <div class="question-zone" id="btnSpeak" title="播放發音">
-      <div id="displayArea" class="listen-hint">播放發音</div>
-      <button id="btnEye" aria-label="toggle word"
-        style="position:absolute; right:10px; top:10px; border:2px solid #000; border-radius:10px; background:#fff; font-weight:900; padding:6px 10px; cursor:pointer;">
-        顯示/隱藏
-      </button>
-    </div>
+      <div>
+        <label for="targetText">2) 參考稿（評估內容完整度）</label>
+        <textarea id="targetText" placeholder="例如：Climate change is one of the biggest challenges of our time..."></textarea>
 
-    <div class="pill" title="選擇對戰人數/隊數">
-      <label for="teamSelect">對戰</label>
-      <select id="teamSelect">
-        <option value="1">1 人</option>
-        <option value="2">2 人</option>
-        <option value="3" selected>3 人</option>
-        <option value="4">4 人</option>
-        <option value="5">5 人</option>
-      </select>
-    </div>
+        <label for="transcript" style="margin-top:10px;">3) 學生逐字稿（可手動貼上）</label>
+        <textarea id="transcript" placeholder="若有逐字稿，系統可更精準評估內容完整度。"></textarea>
 
-    <div class="pill" title="設定回數（每局題數）">
-      <label for="roundSelect">回數</label>
-      <select id="roundSelect"></select>
-    </div>
+        <div class="actions">
+          <button id="btnAnalyze" class="btn-primary">開始評鑑</button>
+          <button id="btnReset" class="btn-muted">清除</button>
+        </div>
+        <div id="status" class="status"></div>
+      </div>
+    </section>
 
-    <div class="pill" title="自動下一題條件">
-      <label for="autoSelect">自動</label>
-      <select id="autoSelect">
-        <option value="off">關閉</option>
-        <option value="correct">答對就下一題</option>
-        <option value="all" selected>全員答對換下一題</option>
-      </select>
-    </div>
+    <section class="card">
+      <div class="score-head">
+        <div>
+          <div style="font-weight:800; color:#1e3a8a;">總分（100）</div>
+          <div id="totalScore" class="total-score">--</div>
+        </div>
+        <div id="band" class="band">等待評鑑</div>
+      </div>
 
-    <div id="roundText" class="mini" style="min-width:140px; text-align:center;">Round 1 / 4</div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>流暢度 Fluency (30)</span><span id="fluencyNum">--</span></div>
+        <div class="bar"><span id="fluencyBar"></span></div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>發音清晰 Pronunciation (30)</span><span id="pronNum">--</span></div>
+        <div class="bar"><span id="pronBar"></span></div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>內容完整 Content (25)</span><span id="contentNum">--</span></div>
+        <div class="bar"><span id="contentBar"></span></div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-label"><span>表達表現 Delivery (15)</span><span id="deliveryNum">--</span></div>
+        <div class="bar"><span id="deliveryBar"></span></div>
+      </div>
 
-    <div style="display:flex; gap:10px;">
-      <button class="comic-btn" id="btnNext" style="background:var(--pop-green);">下一題</button>
-      <button class="comic-btn" id="btnConfig">題庫</button>
-    </div>
-  </div>
+      <h3>評語</h3>
+      <p id="comment" class="comment">尚未產生評語。</p>
 
-  <div class="battle-ground" id="battleGround"></div>
-</div>
+      <div id="metrics" class="metric"></div>
+    </section>
 
-<div class="overlay" id="configOverlay">
-  <div class="comic-box modal">
-    <h2>題庫設定</h2>
+    <section class="card">
+      <h3>評分標準（完整口語評鑑）</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>分數範圍</th>
+            <th>標準</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>流暢度 Fluency (30)</td>
+            <td>0-30</td>
+            <td>綜合語速（建議 110-170 WPM）與停頓比例（建議 &lt; 28%）評估是否自然連續。</td>
+          </tr>
+          <tr>
+            <td>發音清晰 Pronunciation (30)</td>
+            <td>0-30</td>
+            <td>依聲音能量穩定度、雜訊比例、清晰度指標（零交叉率）估計可懂度。</td>
+          </tr>
+          <tr>
+            <td>內容完整 Content (25)</td>
+            <td>0-25</td>
+            <td>以逐字稿和參考稿字詞重疊率計分；無逐字稿時給基準分並提醒補資料。</td>
+          </tr>
+          <tr>
+            <td>表達表現 Delivery (15)</td>
+            <td>0-15</td>
+            <td>依音量變化與節奏穩定度評估是否有重音、語調和表達層次。</td>
+          </tr>
+          <tr>
+            <td>等級標準</td>
+            <td>A~E</td>
+            <td>A:85-100、B:70-84、C:55-69、D:40-54、E:&lt;40。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="hint">
+        注意：本工具為「自動化輔助評量」，建議搭配教師人工回饋使用，以提高公平性與精準度。
+      </p>
+    </section>
+  </main>
 
-    <div class="row">
-      <div class="mini" id="bankCount">目前題庫：0</div>
-      <button class="comic-btn" id="btnClear" style="background:#fff;">清空題庫</button>
-    </div>
+  <script>
+    const $ = (id) => document.getElementById(id);
 
-    <textarea id="wordInput" placeholder="貼上單字（用逗號、空白或換行分隔）&#10;例如：Apple Banana Cat Dog"></textarea>
+    const audioFile = $("audioFile");
+    const preview = $("preview");
+    const btnAnalyze = $("btnAnalyze");
+    const btnReset = $("btnReset");
+    const statusEl = $("status");
 
-    <div style="display:flex; gap:10px; margin-top:12px;">
-      <button class="comic-btn" id="btnApply" style="flex:1; background:var(--pop-blue); color:#fff;">套用（覆蓋舊題庫）</button>
-      <button class="comic-btn" id="btnCancel" style="flex:1;">關閉</button>
-    </div>
+    let objectUrl = "";
 
-    <div style="margin-top:10px; font-size:14px; font-weight:900; color:#334155;">
-      規則：答對者依序獲得 +10、+8、+6、+4、+2 <br>
-      <span style="color:#22c55e;">選錯不扣分，修正後選對依然有分！</span>
-    </div>
-  </div>
-</div>
+    audioFile.addEventListener("change", () => {
+      const file = audioFile.files?.[0];
+      if (!file) return;
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+      objectUrl = URL.createObjectURL(file);
+      preview.src = objectUrl;
+      statusEl.textContent = `已載入：${file.name}`;
+    });
 
-<div class="overlay" id="resultOverlay">
-  <div class="comic-box modal">
-    <h2 style="font-size:28px;">🎉 比賽結束！排行榜</h2>
-    <div id="podium" class="podium"></div>
-    <div id="allScores" class="all-scores"></div>
+    btnReset.addEventListener("click", () => {
+      audioFile.value = "";
+      $("targetText").value = "";
+      $("transcript").value = "";
+      preview.removeAttribute("src");
+      statusEl.textContent = "已清除資料。";
+      setScores({ fluency: 0, pronunciation: 0, content: 0, delivery: 0, total: 0, band: "等待評鑑", comment: "尚未產生評語。", metrics: [] }, true);
+    });
 
-    <div style="display:flex; gap:10px; margin-top:14px;">
-      <button class="comic-btn" id="btnRestart" style="flex:1; background:var(--pop-green);">再來一局（分數歸零）</button>
-      <button class="comic-btn" id="btnResultClose" style="flex:1;">關閉</button>
-    </div>
-  </div>
-</div>
+    btnAnalyze.addEventListener("click", analyze);
 
-<script>
-/* ================== 參數 ================== */
-let TOTAL_QUESTIONS = 4;
-const OPTIONS_PER_QUESTION = 4;
-const RACE_POINTS = [10, 8, 6, 4, 2]; 
-const AUTO_DELAY_MS = 1500; // 延遲長一點點讓大家看到讚
+    function normalizeText(text) {
+      return (text || "")
+        .toLowerCase()
+        .replace(/[^a-z0-9\s']/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
 
-/* ================== 題庫 ================== */
-const DEFAULT_WORDS = ["Apple","Banana","Cat","Dog","Car","Fish","Sun","Moon","Book","Bird","Lion","Milk","Tree","Water","Fire"];
-let MASTER_WORDS = [...DEFAULT_WORDS];
+    function tokenSet(text) {
+      return new Set(normalizeText(text).split(" ").filter(Boolean));
+    }
 
-/* ================== 狀態 ================== */
-let teamCount = 3;
-let teamScores = [0,0,0,0,0];
-let gameBank = [];
-let currentIdx = 0;
-let isShowWord = false;
-let gameEnded = false;
+    function overlapRatio(src, target) {
+      if (!src || !target) return 0;
+      const a = tokenSet(src);
+      const b = tokenSet(target);
+      if (!b.size) return 0;
+      let hit = 0;
+      b.forEach((w) => { if (a.has(w)) hit += 1; });
+      return hit / b.size;
+    }
 
-let correctRank = 0;
-let answeredTeams = new Set();
-// missedTeams 用來記錄是否有答錯過，但這版本不再影響獲得分數，僅供參考或擴充用
-let missedTeams = new Set();
+    async function analyze() {
+      const file = audioFile.files?.[0];
+      if (!file) {
+        statusEl.textContent = "請先上傳音檔。";
+        return;
+      }
 
-let autoMode = "all"; 
-let autoTimer = null;
-let questionFinalized = false;
+      statusEl.textContent = "分析中，請稍候...";
 
-/* ================== 工具 ================== */
-function uniq(arr){
-  const seen = new Set();
-  const out = [];
-  for(const x of arr){
-    const t = String(x).trim();
-    if(!t) continue;
-    const key = t.toLowerCase();
-    if(seen.has(key)) continue;
-    seen.add(key);
-    out.push(t);
-  }
-  return out;
-}
-function shuffle(arr){
-  for(let i=arr.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [arr[i],arr[j]] = [arr[j],arr[i]];
-  }
-  return arr;
-}
-function setCols(n){
-  document.getElementById("battleGround").style.setProperty("--cols", String(n));
-}
-function updateBankCount(){
-  document.getElementById("bankCount").textContent = `目前題庫：${MASTER_WORDS.length}`;
-}
-function updateRoundText(){
-  const total = gameBank.length || TOTAL_QUESTIONS;
-  document.getElementById("roundText").textContent = `Round ${Math.min(currentIdx+1,total)} / ${total}`;
-}
-function lockTeam(teamIdx){
-  const list = document.getElementById(`list-${teamIdx}`);
-  if(!list) return;
-  list.classList.add("locked");
-  const header = list.closest(".team-container")?.querySelector(".team-info");
-  if(header && !header.querySelector(`[data-lock="${teamIdx}"]`)){
-    const badge = document.createElement("span");
-    badge.className = "lock-badge";
-    badge.setAttribute("data-lock", String(teamIdx));
-    badge.textContent = "完成";
-    header.appendChild(badge);
-  }
-}
-function clearLocks(){
-  for(let t=0;t<teamCount;t++){
-    const list = document.getElementById(`list-${t}`);
-    if(list) list.classList.remove("locked");
-    const header = list?.closest(".team-container")?.querySelector(".team-info");
-    const badge = header?.querySelector(`[data-lock="${t}"]`);
-    if(badge) badge.remove();
-  }
-}
-function clearAutoTimer(){
-  if(autoTimer){ clearTimeout(autoTimer); autoTimer = null; }
-}
+      try {
+        const buffer = await file.arrayBuffer();
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+        const audioBuffer = await ctx.decodeAudioData(buffer.slice(0));
 
-/* ================== 語音 ================== */
-function speak(text){
-  if(!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const target = text || gameBank[currentIdx]?.answer || "";
-  if(!target) return;
+        const channel = audioBuffer.getChannelData(0);
+        const sampleRate = audioBuffer.sampleRate;
+        const duration = audioBuffer.duration;
 
-  const u = new SpeechSynthesisUtterance(target);
-  u.lang = /^[A-Za-z0-9\s]+$/.test(target) ? "en-US" : "zh-TW";
-  u.rate = 0.9;
-  speechSynthesis.speak(u);
-}
+        const frameSize = Math.floor(sampleRate * 0.025);
+        const hop = Math.floor(sampleRate * 0.01);
 
-/* ================== 建題 ================== */
-function buildGameBank(){
-  MASTER_WORDS = uniq(MASTER_WORDS);
-  if(MASTER_WORDS.length < OPTIONS_PER_QUESTION){
-    alert(`題庫不足 ${OPTIONS_PER_QUESTION} 個單字，請在題庫加入更多單字。`);
-    return false;
-  }
-  const pool = shuffle([...MASTER_WORDS]);
-  const answers = [];
-  for(let i=0;i<TOTAL_QUESTIONS;i++){
-    answers.push(pool[i % pool.length]);
-  }
-  shuffle(answers);
+        const energies = [];
+        const zcrs = [];
+        for (let i = 0; i + frameSize < channel.length; i += hop) {
+          let sum = 0;
+          let zc = 0;
+          for (let j = 0; j < frameSize; j++) {
+            const x = channel[i + j];
+            sum += x * x;
+            if (j > 0) {
+              const prev = channel[i + j - 1];
+              if ((x >= 0 && prev < 0) || (x < 0 && prev >= 0)) zc += 1;
+            }
+          }
+          energies.push(Math.sqrt(sum / frameSize));
+          zcrs.push(zc / frameSize);
+        }
 
-  gameBank = answers.map(ans=>{
-    const others = MASTER_WORDS.filter(w => w.toLowerCase() !== ans.toLowerCase());
-    shuffle(others);
-    const options = shuffle([ans, ...others.slice(0, OPTIONS_PER_QUESTION-1)]);
-    return { answer: ans, options };
-  });
+        const meanEnergy = energies.reduce((a, b) => a + b, 0) / (energies.length || 1);
+        const voicedThreshold = meanEnergy * 0.6;
+        const voicedFrames = energies.filter((e) => e > voicedThreshold).length;
+        const pauseRatio = 1 - voicedFrames / (energies.length || 1);
 
-  shuffle(gameBank);
-  return true;
-}
+        const words = normalizeText($("transcript").value).split(" ").filter(Boolean).length;
+        const wpm = duration > 0 ? Math.round((words / duration) * 60) : 0;
 
-/* ================== 顯示答案 ================== */
-function revealCorrectAnswer(){
-  const q = gameBank[currentIdx];
-  if(!q) return;
-  for(let t=0;t<teamCount;t++){
-    const list = document.getElementById(`list-${t}`);
-    if(!list) continue;
-    const items = Array.from(list.querySelectorAll(".option-item"));
-    for(const it of items){
-      const txt = (it.querySelector('.option-word')?.textContent || "").trim();
-      if(txt.toLowerCase() === q.answer.toLowerCase()){
-        it.classList.add("reveal-correct");
+        const energyStd = stdDev(energies, meanEnergy);
+        const zcrMean = zcrs.reduce((a, b) => a + b, 0) / (zcrs.length || 1);
+
+        const fluency = scoreFluency(wpm, pauseRatio);
+        const pronunciation = scorePronunciation(meanEnergy, energyStd, zcrMean);
+        const content = scoreContent($("transcript").value, $("targetText").value);
+        const delivery = scoreDelivery(energyStd, pauseRatio);
+
+        const total = Math.round(fluency + pronunciation + content + delivery);
+        const band = toBand(total);
+
+        const comment = buildComment({ total, wpm, pauseRatio, content, hasTranscript: words > 0, hasTarget: !!normalizeText($("targetText").value) });
+        const metrics = [
+          `音檔長度：<code>${duration.toFixed(1)} 秒</code>`,
+          `估計語速：<code>${wpm || 0} WPM</code>（需有逐字稿）`,
+          `停頓比例：<code>${(pauseRatio * 100).toFixed(1)}%</code>`,
+          `平均能量：<code>${meanEnergy.toFixed(4)}</code>`,
+          `清晰度指標(ZCR)：<code>${zcrMean.toFixed(4)}</code>`
+        ];
+
+        setScores({ fluency, pronunciation, content, delivery, total, band, comment, metrics });
+        statusEl.textContent = `評鑑完成：${file.name}`;
+        ctx.close();
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "音檔解析失敗，請確認檔案格式（mp3/m4a/wav）是否正確。";
       }
     }
-  }
-}
 
-function finalizeQuestionAndMaybeAutoNext(){
-  if(questionFinalized) return;
-  questionFinalized = true;
-
-  revealCorrectAnswer();
-
-  if(autoMode !== "off"){
-    clearAutoTimer();
-    autoTimer = setTimeout(()=> nextQuestion(), AUTO_DELAY_MS);
-  }
-}
-
-function nextQuestion(){
-  if(gameEnded) return;
-  clearAutoTimer();
-  currentIdx++;
-  isShowWord = false;
-  updateUI();
-}
-
-/* ================== 結果排行 ================== */
-function showResults(){
-  const overlay = document.getElementById("resultOverlay");
-  const podium = document.getElementById("podium");
-  const allScores = document.getElementById("allScores");
-
-  const standings = [];
-  for(let i=0;i<teamCount;i++){
-    standings.push({ team: i+1, score: teamScores[i] || 0 });
-  }
-  standings.sort((a,b)=> (b.score - a.score) || (a.team - b.team));
-
-  const ranks = [];
-  for(let i=0;i<standings.length;i++){
-    if(i===0){ ranks[i]=1; continue; }
-    ranks[i] = (standings[i].score === standings[i-1].score) ? ranks[i-1] : (i+1);
-  }
-
-  const medalByRank = {1:"🥇",2:"🥈",3:"🥉",4:"🎖️",5:"🎖️"};
-  const labelByRank = {1:"第一名",2:"第二名",3:"第三名",4:"第四名",5:"第五名"};
-
-  podium.innerHTML = "";
-  for(let i=0;i<standings.length;i++){
-    const r = ranks[i];
-    const s = standings[i];
-    const tied = (i>0 && ranks[i]===ranks[i-1] && standings[i].score===standings[i-1].score)
-               || standings.some((x, idx)=> idx!==i && ranks[idx]===r && x.score===s.score);
-    const label = (labelByRank[r] || `第${r}名`) + (tied ? " (並列)" : "");
-
-    const item = document.createElement("div");
-    item.className = "podium-item";
-    
-    let bgColor = "#f8fafc";
-    if(r===1) bgColor = "#fff7ed";
-    else if(r===2) bgColor = "#eff6ff";
-    else if(r===3) bgColor = "#f0fdf4";
-
-    item.style.background = bgColor;
-
-    item.innerHTML = `
-      <div class="podium-left">
-        <span class="badge">${medalByRank[r] || "🏅"}</span>
-        <div>${label}：TEAM ${s.team}</div>
-      </div>
-      <div class="score-big">${s.score} 分</div>
-    `;
-    podium.appendChild(item);
-  }
-
-  allScores.innerHTML = "";
-  overlay.style.display = "flex";
-}
-
-function initGame(){
-  if(!buildGameBank()) return;
-  currentIdx = 0;
-  isShowWord = false;
-  gameEnded = false;
-  renderBattleGround();
-  updateUI();
-  updateBankCount();
-}
-
-function renderBattleGround(){
-  const bg = document.getElementById("battleGround");
-  bg.innerHTML = "";
-  setCols(teamCount);
-
-  const teamBg = ["#fff5f5","#f0f9ff","#f0fdf4","#fdf4ff","#fff7ed"];
-  const teamColor = ["#ef4444","#3b82f6","#22c55e","#a855f7","#f97316"];
-
-  for(let i=0;i<teamCount;i++){
-    const div = document.createElement("div");
-    div.className = "comic-box team-container";
-    div.style.background = teamBg[i] || "#fff";
-    div.innerHTML = `
-      <div class="team-info" style="color:${teamColor[i] || '#000'}">
-        <span>TEAM ${i+1}</span>
-        <span class="score-tag" id="score-${i}">${teamScores[i] || 0}</span>
-      </div>
-      <div class="options-list" id="list-${i}"></div>
-    `;
-    bg.appendChild(div);
-  }
-}
-
-function updateUI(){
-  if(gameEnded){ showResults(); return; }
-  if(currentIdx >= gameBank.length){ gameEnded = true; showResults(); return; }
-
-  clearAutoTimer();
-  questionFinalized = false;
-
-  answeredTeams = new Set();
-  missedTeams = new Set();
-  correctRank = 0;
-  clearLocks();
-
-  const q = gameBank[currentIdx];
-  const display = document.getElementById("displayArea");
-  updateRoundText();
-
-  if(isShowWord){
-    display.className = "word-text";
-    display.textContent = q.answer;
-  }else{
-    display.className = "listen-hint";
-    display.textContent = "播放發音";
-  }
-
-  for(let t=0;t<teamCount;t++){
-    const list = document.getElementById(`list-${t}`);
-    if(!list) continue;
-    list.innerHTML = "";
-    const opts = shuffle([...q.options]);
-    for(const opt of opts){
-      const item = document.createElement("div");
-      item.className = "option-item";
-      item.innerHTML = `<div class="option-word">${opt}</div>`;
-      item.onclick = () => checkAnswer(t, opt, q.answer, item);
-      list.appendChild(item);
-    }
-  }
-  speak();
-}
-
-/* ================== 作答邏輯（核心修正） ================== */
-function checkAnswer(teamIdx, pick, ans, el){
-  if(gameEnded) return;
-  // 已經完成任務的隊伍不能再按
-  if(answeredTeams.has(teamIdx)) return;
-  // 該按鈕已經被判定對或錯，避免重複觸發
-  if(el.classList.contains("wrong") || el.classList.contains("correct")) return;
-
-  const isCorrect = (pick.toLowerCase() === ans.toLowerCase());
-
-  if(isCorrect){
-    // === 答對 ===
-    el.classList.add("correct");
-
-    // 1. 顯示大大的讚 Emoji
-    const emojiSpan = document.createElement("span");
-    emojiSpan.className = "thumb-emoji";
-    emojiSpan.textContent = "👍";
-    el.appendChild(emojiSpan);
-
-    // 2. 計分邏輯（放寬：即使之前錯過，只要最後對了，依然依順序給分）
-    // 給予該順位(correctRank)的分數，如果超過設定就給最低分2分
-    const pts = RACE_POINTS[correctRank] ?? 2;
-    correctRank++; // 下一隊的名次往後延
-    
-    teamScores[teamIdx] = (teamScores[teamIdx] || 0) + pts;
-    document.getElementById(`score-${teamIdx}`).textContent = teamScores[teamIdx];
-    
-    speak(ans);
-
-    // 3. 鎖定該隊伍
-    answeredTeams.add(teamIdx);
-    lockTeam(teamIdx);
-
-    // 4. 自動下一題判斷 (如果是 "correct" 模式)
-    if(autoMode === "correct"){
-      finalizeQuestionAndMaybeAutoNext();
+    function stdDev(arr, mean) {
+      if (!arr.length) return 0;
+      const v = arr.reduce((s, x) => s + (x - mean) ** 2, 0) / arr.length;
+      return Math.sqrt(v);
     }
 
-  }else{
-    // === 答錯 ===
-    el.classList.add("wrong");
-    // 不扣分、不鎖定隊伍，僅鎖定該選項按鈕
-    // 讓學生可以繼續嘗試其他選項
-    
-    missedTeams.add(teamIdx); // 紀錄一下，雖然不影響分數了
-  }
+    function clamp(v, min, max) {
+      return Math.max(min, Math.min(max, v));
+    }
 
-  // 若所有人都答對/完成，自動下一題
-  if(autoMode === "all" && answeredTeams.size >= teamCount){
-    finalizeQuestionAndMaybeAutoNext();
-  }
-}
+    function scoreFluency(wpm, pauseRatio) {
+      let score = 30;
+      if (!wpm || Number.isNaN(wpm)) score -= 8;
+      else if (wpm < 90 || wpm > 200) score -= 10;
+      else if (wpm < 110 || wpm > 170) score -= 5;
 
-/* ================== 事件 ================== */
-document.getElementById("btnSpeak").onclick = (e)=>{
-  if(e.target.id !== "btnEye") speak();
-};
-document.getElementById("btnEye").onclick = (e)=>{
-  e.stopPropagation();
-  isShowWord = !isShowWord;
-  updateUI();
-};
-document.getElementById("btnNext").onclick = ()=> nextQuestion();
+      if (pauseRatio > 0.45) score -= 12;
+      else if (pauseRatio > 0.33) score -= 8;
+      else if (pauseRatio > 0.28) score -= 4;
+      return clamp(score, 0, 30);
+    }
 
-document.getElementById("teamSelect").addEventListener("change", (e)=>{
-  teamCount = Math.max(1, Math.min(5, parseInt(e.target.value,10) || 3));
-  renderBattleGround();
-  updateUI();
-});
+    function scorePronunciation(meanEnergy, energyStd, zcrMean) {
+      let score = 30;
+      if (meanEnergy < 0.01) score -= 12;
+      else if (meanEnergy < 0.02) score -= 6;
 
-const roundSelect = document.getElementById("roundSelect");
-for(let i=4;i<=20;i++){
-  const opt = document.createElement("option");
-  opt.value = String(i);
-  opt.textContent = `${i} 回`;
-  roundSelect.appendChild(opt);
-}
-roundSelect.value = "4";
-roundSelect.addEventListener("change", (e)=>{
-  TOTAL_QUESTIONS = Math.max(4, Math.min(20, parseInt(e.target.value,10) || 4));
-  initGame();
-});
+      const stability = energyStd / (meanEnergy + 1e-6);
+      if (stability > 1.2) score -= 9;
+      else if (stability > 0.8) score -= 5;
 
-document.getElementById("autoSelect").addEventListener("change", (e)=>{
-  autoMode = e.target.value || "all";
-  clearAutoTimer();
-});
+      if (zcrMean < 0.03 || zcrMean > 0.2) score -= 6;
+      return clamp(score, 0, 30);
+    }
 
-const configOverlay = document.getElementById("configOverlay");
-document.getElementById("btnConfig").onclick = ()=>{
-  document.getElementById("wordInput").value = MASTER_WORDS.join(", ");
-  updateBankCount();
-  configOverlay.style.display = "flex";
-};
-document.getElementById("btnCancel").onclick = ()=>{
-  configOverlay.style.display = "none";
-};
-document.getElementById("btnClear").onclick = ()=>{
-  MASTER_WORDS = [];
-  updateBankCount();
-  document.getElementById("wordInput").value = "";
-};
-document.getElementById("btnApply").onclick = ()=>{
-  const raw = document.getElementById("wordInput").value || "";
-  const words = raw.split(/[\n,\t ]+/).map(s=>s.trim()).filter(Boolean);
-  const clean = uniq(words);
-  if(clean.length < OPTIONS_PER_QUESTION){
-    alert(`請至少輸入 ${OPTIONS_PER_QUESTION} 個單字`);
-    return;
-  }
-  MASTER_WORDS = clean;
-  teamScores = [0,0,0,0,0];
-  configOverlay.style.display = "none";
-  initGame();
-};
+    function scoreContent(transcript, target) {
+      const cleanTranscript = normalizeText(transcript);
+      const cleanTarget = normalizeText(target);
+      if (!cleanTarget) return cleanTranscript ? 15 : 10;
+      if (!cleanTranscript) return 8;
 
-const resultOverlay = document.getElementById("resultOverlay");
-document.getElementById("btnResultClose").onclick = ()=> resultOverlay.style.display = "none";
-document.getElementById("btnRestart").onclick = ()=>{
-  resultOverlay.style.display = "none";
-  teamScores = [0,0,0,0,0];
-  initGame();
-};
+      const ratio = overlapRatio(cleanTranscript, cleanTarget);
+      return clamp(Math.round(ratio * 25), 0, 25);
+    }
 
-updateBankCount();
-initGame();
-</script>
+    function scoreDelivery(energyStd, pauseRatio) {
+      let score = 15;
+      if (energyStd < 0.01) score -= 4;
+      if (pauseRatio > 0.4) score -= 4;
+      if (pauseRatio < 0.1) score -= 2;
+      return clamp(score, 0, 15);
+    }
 
-<script>
-/* ====== Right-click disable + shortcut block + DevTools overlay (deterrent, not foolproof) ====== */
+    function toBand(total) {
+      if (total >= 85) return "A 優秀";
+      if (total >= 70) return "B 良好";
+      if (total >= 55) return "C 基礎達標";
+      if (total >= 40) return "D 待加強";
+      return "E 需明顯改善";
+    }
 
-// 1) Disable context menu (right click / long press)
-document.addEventListener("contextmenu", (e) => {
-  e.preventDefault();
-  e.stopPropagation();
-  return false;
-}, {capture:true});
+    function buildComment({ total, wpm, pauseRatio, content, hasTranscript, hasTarget }) {
+      const lines = [];
+      if (total >= 85) lines.push("整體口語表現成熟，語流自然且表達清楚。");
+      else if (total >= 70) lines.push("整體表現不錯，已具備良好英語口說基礎。");
+      else if (total >= 55) lines.push("已達基本溝通能力，建議加強流暢度與語句銜接。");
+      else lines.push("目前口語穩定度偏弱，建議先做短句跟讀與分段練習。");
 
-// 2) Block common "view source / devtools" shortcuts
-document.addEventListener("keydown", (e) => {
-  const k = (e.key || "").toLowerCase();
+      if (hasTranscript) {
+        if (wpm < 110) lines.push("語速偏慢，可透過 shadowing 練習提升連續輸出能力。");
+        else if (wpm > 170) lines.push("語速偏快，建議加強斷句與重音，避免可懂度下降。");
+      } else {
+        lines.push("未提供逐字稿，語速與內容評分精準度會下降。");
+      }
 
-  // F12
-  if (e.key === "F12") { e.preventDefault(); e.stopPropagation(); return; }
+      if (pauseRatio > 0.33) lines.push("停頓比例偏高，建議先規劃句群後再輸出，降低猶豫停頓。");
+      if (hasTarget) {
+        if (content < 13) lines.push("與參考稿重點重疊較低，建議補足關鍵詞與核心句型。");
+        else lines.push("內容涵蓋度良好，可再增加細節例證讓論述更完整。");
+      }
 
-  // Ctrl+Shift+I / J / C (DevTools)
-  if (e.ctrlKey && e.shiftKey && ["i","j","c"].includes(k)) { e.preventDefault(); e.stopPropagation(); return; }
+      return lines.join(" ");
+    }
 
-  // Ctrl+U (View Source), Ctrl+S (Save), Ctrl+P (Print)
-  if (e.ctrlKey && ["u","s","p"].includes(k)) { e.preventDefault(); e.stopPropagation(); return; }
+    function setScores(data, isReset = false) {
+      const { fluency, pronunciation, content, delivery, total, band, comment, metrics } = data;
 
-  // Cmd equivalents on macOS
-  if (e.metaKey && ["u","s","p"].includes(k)) { e.preventDefault(); e.stopPropagation(); return; }
-}, {capture:true});
+      $("fluencyNum").textContent = `${Math.round(fluency)}/30`;
+      $("pronNum").textContent = `${Math.round(pronunciation)}/30`;
+      $("contentNum").textContent = `${Math.round(content)}/25`;
+      $("deliveryNum").textContent = `${Math.round(delivery)}/15`;
 
-// 3) Detect docked DevTools (size delta heuristic) and cover UI
-(function(){
-  const blockerId = "devtools-blocker";
-  let blocker = document.getElementById(blockerId);
-  if(!blocker){
-    blocker = document.createElement("div");
-    blocker.id = blockerId;
-    blocker.style.cssText = [
-      "position:fixed","inset:0","z-index:999999",
-      "display:none","align-items:center","justify-content:center",
-      "background:rgba(0,0,0,.92)","color:#fff","text-align:center",
-      "padding:24px","font:800 20px/1.4 system-ui,'Microsoft JhengHei',sans-serif"
-    ].join(";");
-    blocker.innerHTML = "偵測到開發者工具已開啟<br>請關閉後再繼續使用";
-    document.body.appendChild(blocker);
-  }
+      $("fluencyBar").style.width = `${(fluency / 30) * 100}%`;
+      $("pronBar").style.width = `${(pronunciation / 30) * 100}%`;
+      $("contentBar").style.width = `${(content / 25) * 100}%`;
+      $("deliveryBar").style.width = `${(delivery / 15) * 100}%`;
 
-  const THRESHOLD = 160; // sensitivity
-  setInterval(() => {
-    const opened = (window.outerWidth - window.innerWidth > THRESHOLD) ||
-                   (window.outerHeight - window.innerHeight > THRESHOLD);
-    blocker.style.display = opened ? "flex" : "none";
-  }, 600);
-})();
-</script>
-
+      $("totalScore").textContent = isReset ? "--" : String(total);
+      $("band").textContent = band;
+      $("comment").textContent = comment;
+      $("metrics").innerHTML = (metrics || []).join("<br>");
+    }
+  </script>
 </body>
 </html>
-
-
